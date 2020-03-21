@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <assert.h>
-#include <time.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
 
@@ -19,8 +18,6 @@
 
 #include "ui.hpp"
 #include "sound.hpp"
-#include "dashcam.h"
-
 
 static int last_brightness = -1;
 static void set_brightness(UIState *s, int brightness) {
@@ -114,36 +111,20 @@ static void ui_init(UIState *s) {
   s->uilayout_sock = SubSocket::create(s->ctx, "uiLayoutState");
   s->livecalibration_sock = SubSocket::create(s->ctx, "liveCalibration");
   s->radarstate_sock = SubSocket::create(s->ctx, "radarState");
-  s->thermal_sock = SubSocket::create(s->ctx, "thermal");
-  s->carstate_sock = SubSocket::create(s->ctx, "carState");
-  s->gpslocation_sock = SubSocket::create(s->ctx, "gpsLocation");
-  s->gpslocationexternal_sock = SubSocket::create(s->ctx, "gpsLocationExternal");
-  s->livempc_sock = SubSocket::create(s->ctx, "liveMpc");
 
   assert(s->model_sock != NULL);
   assert(s->controlsstate_sock != NULL);
   assert(s->uilayout_sock != NULL);
   assert(s->livecalibration_sock != NULL);
   assert(s->radarstate_sock != NULL);
-  assert(s->thermal_sock != NULL);
-  assert(s->carstate_sock != NULL);
-  assert(s->gpslocation_sock != NULL);
-  assert(s->gpslocationexternal_sock != NULL);
-  assert(s->livempc_sock != NULL);
 
   s->poller = Poller::create({
                               s->model_sock,
                               s->controlsstate_sock,
                               s->uilayout_sock,
                               s->livecalibration_sock,
-                              s->radarstate_sock,
-                              s->carstate_sock,
-                              s->livempc_sock,
-                              s->gpslocation_sock,
-                              s->gpslocationexternal_sock,
-                              s->thermal_sock
+                              s->radarstate_sock
                              });
-
 
 #ifdef SHOW_SPEEDLIMIT
   s->map_data_sock = SubSocket::create(s->ctx, "liveMapData");
@@ -191,7 +172,6 @@ static void ui_init_vision(UIState *s, const VisionStreamBufs back_bufs,
       .front_box_height = ui_info.front_box_height,
       .world_objects_visible = false,  // Invisible until we receive a calibration message.
       .gps_planner_active = false,
-      .recording = false,
   };
 
   s->rgb_width = back_bufs.width;
@@ -286,9 +266,6 @@ void handle_message(UIState *s, Message * msg) {
     struct cereal_ControlsState datad;
     cereal_read_ControlsState(&datad, eventd.controlsState);
 
-    struct cereal_ControlsState_LateralPIDState pdata;
-    cereal_read_ControlsState_LateralPIDState(&pdata, datad.lateralControlState.pidState);
-
     s->controls_timeout = 1 * UI_FREQ;
     s->controls_seen = true;
 
@@ -297,21 +274,15 @@ void handle_message(UIState *s, Message * msg) {
     }
     s->scene.v_cruise = datad.vCruise;
     s->scene.v_ego = datad.vEgo;
-    s->scene.angleSteers = datad.angleSteers;
     s->scene.curvature = datad.curvature;
     s->scene.engaged = datad.enabled;
     s->scene.engageable = datad.engageable;
     s->scene.gps_planner_active = datad.gpsPlannerActive;
     s->scene.monitoring_active = datad.driverMonitoringOn;
-    s->scene.steerOverride = datad.steerOverride;
-    s->scene.output_scale = pdata.output;
 
     s->scene.frontview = datad.rearViewCam;
 
     s->scene.decel_for_model = datad.decelForModel;
-
-    // getting steering related data for dev ui
-    s->scene.angleSteersDes = datad.angleSteersDes;
 
     if (datad.alertSound != cereal_CarControl_HUDControl_AudibleAlert_none && datad.alertSound != s->alert_sound) {
       if (s->alert_sound != cereal_CarControl_HUDControl_AudibleAlert_none) {
@@ -424,35 +395,6 @@ void handle_message(UIState *s, Message * msg) {
       s->scene.mpc_y[i] = capn_to_f32(capn_get32(y_list, i));
     }
     s->livempc_or_radarstate_changed = true;
-  } else if (eventd.which == cereal_Event_thermal) {
-    struct cereal_ThermalData datad;
-    cereal_read_ThermalData(&datad, eventd.thermal);
-
-    if (!datad.started) {
-      update_status(s, STATUS_STOPPED);
-    } else if (s->status == STATUS_STOPPED) {
-      // car is started but controls doesn't have fingerprint yet
-      update_status(s, STATUS_DISENGAGED);
-    }
-
-    s->scene.started_ts = datad.startedTs;
-    //BBB CPU TEMP
-    s->scene.maxCpuTemp = datad.cpu0;
-    if (s->scene.maxCpuTemp < datad.cpu1)
-    {
-      s->scene.maxCpuTemp = datad.cpu1;
-    }
-    else if (s->scene.maxCpuTemp < datad.cpu2)
-    {
-      s->scene.maxCpuTemp = datad.cpu2;
-    }
-    else if (s->scene.maxCpuTemp < datad.cpu3)
-    {
-      s->scene.maxCpuTemp = datad.cpu3;
-    }
-    s->scene.maxBatTemp = datad.bat;
-    s->scene.freeSpace = datad.freeSpace;
-    //BBB END CPU TEMP
   } else if (eventd.which == cereal_Event_uiLayoutState) {
     struct cereal_UiLayoutState datad;
     cereal_read_UiLayoutState(&datad, eventd.uiLayoutState);
@@ -475,31 +417,6 @@ void handle_message(UIState *s, Message * msg) {
     struct cereal_LiveMapData datad;
     cereal_read_LiveMapData(&datad, eventd.liveMapData);
     s->scene.map_valid = datad.mapValid;
-    s->scene.speedlimit = datad.speedLimit;
-    s->scene.speedlimitahead_valid = datad.speedLimitAheadValid;
-    s->scene.speedlimitaheaddistance = datad.speedLimitAheadDistance;
-    s->scene.speedlimit_valid = datad.speedLimitValid;
-  } else if (eventd.which == cereal_Event_carState) {
-    struct cereal_CarState datad;
-    cereal_read_CarState(&datad, eventd.carState);
-    s->scene.brakeLights = datad.brakeLights;
-    if(s->scene.leftBlinker!=datad.leftBlinker || s->scene.rightBlinker!=datad.rightBlinker)
-      s->scene.blinker_blinkingrate = 100;
-    s->scene.leftBlinker = datad.leftBlinker;
-    s->scene.rightBlinker = datad.rightBlinker;
-
-  } else if (eventd.which == cereal_Event_gpsLocationExternal) {
-    struct cereal_GpsLocationData datad;
-    cereal_read_GpsLocationData(&datad, eventd.gpsLocationExternal);
-    s->scene.gpsAccuracy = datad.accuracy;
-    if (s->scene.gpsAccuracy > 100)
-    {
-      s->scene.gpsAccuracy = 99.99;
-    }
-    else if (s->scene.gpsAccuracy == 0)
-    {
-      s->scene.gpsAccuracy = 99.8;
-    }
   }
   capn_free(&ctx);
 }
@@ -574,8 +491,8 @@ static void ui_update(UIState *s) {
     assert(glGetError() == GL_NO_ERROR);
 
     // Default UI Measurements (Assumes sidebar collapsed)
-    s->scene.ui_viz_rx = (box_x-sbr_w+bdr_is*2);
-    s->scene.ui_viz_rw = (box_w+sbr_w-(bdr_is*2));
+    s->scene.ui_viz_rx = (box_x-sbr_w+bdr_s*2);
+    s->scene.ui_viz_rw = (box_w+sbr_w-(bdr_s*2));
     s->scene.ui_viz_ro = 0;
 
     s->vision_connect_firstrun = false;
@@ -960,13 +877,6 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    //awake on any touch
-    int touch_x = -1, touch_y = -1;
-    int touched = touch_poll(&touch, &touch_x, &touch_y, s->awake ? 0 : 100);
-    if (touched == 1) {
-      set_awake(s, true);
-    }
-
     // manage wakefulness
     if (s->awake_timeout > 0) {
       s->awake_timeout--;
@@ -976,7 +886,6 @@ int main(int argc, char* argv[]) {
 
     // Don't waste resources on drawing in case screen is off or car is not started.
     if (s->awake && s->vision_connected) {
-      dashcam(s, touch_x, touch_y);
       ui_draw(s);
       glFinish();
       should_swap = true;

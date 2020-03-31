@@ -68,7 +68,7 @@ ALERTS = [
       "LKAS 버튼 꺼짐",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.HIGH, VisualAlert.none, AudibleAlert.chimelkas, 2.1, 0., .1),
+      Priority.HIGH, VisualAlert.none, AudibleAlert.chimeLkas, 2.1, 0., .1),
 
   # Miscellaneous alerts
   Alert(
@@ -125,7 +125,7 @@ ALERTS = [
       "도로를 주시하세요 : 사용자 도로주시 불안",
       "",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.chimedistracted, 4.0, .1, .1, alert_rate=1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeDistracted, 4.0, .1, .1, alert_rate=1),
 
   Alert(
       "promptDriverDistracted",
@@ -250,21 +250,21 @@ ALERTS = [
       "자동차선변경",
       "좌측차선의 차량을 확인하세요",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.lanechange, 3.1, .1, .1, alert_rate=0.75),
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeLanechange, 3.1, .1, .1, alert_rate=0.75),
 
   Alert(
       "preLaneChangeRight",
       "자동차선변경",
       "우측차선의 차량을 확인하세요",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.lanechange, 3.1, .1, .1, alert_rate=0.75),
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeLanechange, 3.1, .1, .1, alert_rate=0.75),
 
   Alert(
       "laneChange",
       "차선을 변경합니다",
       "차선의 차량을 확인하세요",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.lanechange, 3.1, .1, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeLanechange, 3.1, .1, .1),
   
     Alert(
       "rightLCAbsm",
@@ -285,14 +285,14 @@ ALERTS = [
       "핸들을 조작하세요",
       "차선변경 취소 , 차선이 안전하지않습니다",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimelanechangecancel, 3.5, 3., 3.,),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeLanechangecancel, 3.5, 3., 3.,),
 
   Alert(
       "posenetInvalid",
       "핸들을 조작하세요",
       "비전 모델 출력 불확실",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimevision, 3.5, 2., 3.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimeVision, 3.5, 2., 3.),
 
   # Non-entry only alerts
   Alert(

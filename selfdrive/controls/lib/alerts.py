@@ -626,7 +626,7 @@ ALERTS = [
       "오픈파일럿 사용불가",
       "비전 모델 출력 불확실",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.chimevision, 3.5, 2., 3.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeVision, 3.5, 2., 3.),
 
   Alert(
       "controlsFailedNoEntry",

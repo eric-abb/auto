@@ -303,6 +303,9 @@ Any user of this software shall indemnify and hold harmless comma.ai, Inc. and i
 YOU ARE RESPONSIBLE FOR COMPLYING WITH LOCAL LAWS AND REGULATIONS.
 NO WARRANTY EXPRESSED OR IMPLIED.**
 
+**The voices that are in this branch have the copyright. If you copy it and use it with another Branch, we will inform you that it is against the law.
+여기 브랜치에 있는 음성파일은 저작권이 있습니다. 만약 복제를 하여 다른브랜치에서 사용시 법에 저촉됨을 알려드립니다. 
+
 ---
 
 <img src="https://d1qb2nb5cznatu.cloudfront.net/startups/i/1061157-bc7e9bf3b246ece7322e6ffe653f6af8-medium_jpg.jpg?buster=1458363130" width="75"></img> <img src="https://cdn-images-1.medium.com/max/1600/1*C87EjxGeMPrkTuVRVWVg4w.png" width="225"></img>

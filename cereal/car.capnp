@@ -320,6 +320,11 @@ struct CarControl {
       chimeWarningRepeat @6;
       chimePrompt @7;
       chimeStartup @8;      
+      chimeDistracted @9;      
+      chimeLanechange @10;      
+      chimeLanechangecancel @11;      
+      chimeLkas @12;      
+      chimeVision @13;      
     }
   }
 }

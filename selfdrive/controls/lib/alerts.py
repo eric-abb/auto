@@ -56,7 +56,7 @@ class Alert():
   def __gt__(self, alert2):
     return self.alert_priority > alert2.alert_priority
 
-  ALERTS = [
+ALERTS = [
   Alert(
       "turningIndicatorOn",
       "비상등이나 방향지시등 동작시에는 핸들조향 꺼짐",

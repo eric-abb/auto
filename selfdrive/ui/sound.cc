@@ -25,6 +25,10 @@ void set_volume(int volume) {
 sound_file sound_table[] = {
   { cereal_CarControl_HUDControl_AudibleAlert_chimeDisengage, "../assets/sounds/disengaged.wav", false },
   { cereal_CarControl_HUDControl_AudibleAlert_chimeEngage, "../assets/sounds/engaged.wav", false },
+  { cereal_CarControl_HUDControl_AudibleAlert_chimeEngage, "../assets/sounds/startup.wav", false },
+  { cereal_CarControl_HUDControl_AudibleAlert_chimeEngage, "../assets/sounds/distracted.wav", false },
+  { cereal_CarControl_HUDControl_AudibleAlert_chimeEngage, "../assets/sounds/lkas.wav", false },
+  { cereal_CarControl_HUDControl_AudibleAlert_chimeEngage, "../assets/sounds/vision.wav", false },
   { cereal_CarControl_HUDControl_AudibleAlert_chimeWarning1, "../assets/sounds/warning_1.wav", false },
   { cereal_CarControl_HUDControl_AudibleAlert_chimeWarning2, "../assets/sounds/warning_2.wav", false },
   { cereal_CarControl_HUDControl_AudibleAlert_chimeWarningRepeat, "../assets/sounds/warning_repeat.wav", true },

@@ -147,6 +147,29 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.5
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
+    elif candidate == CAR.GRANDEUR:
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.mass = 1640. + STD_CARGO_KG
+      ret.wheelbase = 2.845
+      ret.steerRatio = 12.5
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
+      ret.minSteerSpeed = 0.
+    elif candidate == CAR.SONATA:
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.mass = 1513. + STD_CARGO_KG
+      ret.wheelbase = 2.84
+      ret.steerRatio = 13.27 * 1.15  # 15% higher at the center seems reasonable
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
+      ret.minSteerSpeed = 0.
+    elif candidate == CAR.PALISADE:
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.mass = 1999. + STD_CARGO_KG
+      ret.wheelbase = 2.90
+      ret.steerRatio = 13.75 * 1.15
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
 
     ret.longitudinalTuning.kpBP = [0., 5., 35.]
     ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]

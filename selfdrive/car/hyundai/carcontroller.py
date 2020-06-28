@@ -93,15 +93,15 @@ class CarController():
     apply_accel = clip(apply_accel * ACCEL_SCALE, ACCEL_MIN, ACCEL_MAX)
 
     if CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (100 * 1. / 3.6):  # above 100km/h
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.38
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.48
     elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (90 * 1. / 3.6):  # btw 100km/h ~ 90km/h
       new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.55
     elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (80 * 1. / 3.6):  # btw 90km/h ~ 80km/h
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.55
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.65
     elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (70 * 1. / 3.6):  # btw 80km/h ~ 70km/h
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.70
-    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (60 * 1. / 3.6):  # btw 70km/h ~ 60km/h
       new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.80
+    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (60 * 1. / 3.6):  # btw 70km/h ~ 60km/h
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.90
     else:
       new_steer = actuators.steer * SteerLimitParams.STEER_MAX    
     

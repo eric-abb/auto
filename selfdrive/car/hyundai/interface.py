@@ -52,19 +52,21 @@ class CarInterface(CarInterfaceBase):
     ret.safetyModel = car.CarParams.SafetyModel.hyundai
     ret.enableCruise = True  # stock acc
 
-    ret.steerActuatorDelay = 0.15  # Default delay
-    ret.steerRateCost = 0.45
+    ret.steerActuatorDelay = 0.1  # Default delay
+    ret.steerRateCost = 0.5
     ret.steerLimitTimer = 0.8
-    tire_stiffness_factor = 0.75
+    tire_stiffness_factor = 1.
 
     if candidate == CAR.SANTAFE:
       ret.lateralTuning.pid.kf = 0.00005
-      ret.mass = 1830. + STD_CARGO_KG
-      ret.wheelbase = 2.765
+      ret.mass = 3982. * CV.LB_TO_KG + STD_CARGO_KG
+      ret.wheelbase = 2.766
       # Values from optimizer
-      ret.steerRatio = 13.8  # 13.8 is spec end-to-end
-      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
+      ret.steerRatio = 16.55  # 13.8 is spec end-to-end
+      tire_stiffness_factor = 0.82
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[9., 22.], [9., 22.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.35], [0.05, 0.09]]
+      ret.minSteerSpeed = 0.
     elif candidate == CAR.SORENTO:
       ret.lateralTuning.pid.kf = 0.00005
       ret.mass = 1950. + STD_CARGO_KG
@@ -79,6 +81,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 16.5
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.16], [0.01]]
+      ret.minSteerSpeed = 60 * CV.KPH_TO_MS
     elif candidate in [CAR.K5, CAR.SONATA]:
       ret.lateralTuning.pid.kf = 0.00005
       ret.mass = 1470. + STD_CARGO_KG

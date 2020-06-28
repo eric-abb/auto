@@ -1,17 +1,22 @@
 from cereal import car
+from selfdrive.config import Conversions as CV
 from common.numpy_fast import clip
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, \
                                              create_scc12, create_mdps12
 from selfdrive.car.hyundai.values import Buttons, CAR
+from selfdrive.kegman_conf import kegman_conf
 from opendbc.can.packer import CANPacker
+
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
 class SteerLimitParams:
-  STEER_MAX = 300   # 409 is the max, 255 is stock
-  STEER_DELTA_UP = 3
-  STEER_DELTA_DOWN = 7
+  kegman = kegman_conf()
+  STEER_MAX = int(kegman.conf['steerMax'])
+  #STEER_MAX = 255 #255   # 409 is the max, 255 is stock
+  STEER_DELTA_UP = int(kegman.conf['deltaUp'])
+  STEER_DELTA_DOWN = int(kegman.conf['deltaDown'])
   STEER_DRIVER_ALLOWANCE = 50
   STEER_DRIVER_MULTIPLIER = 2
   STEER_DRIVER_FACTOR = 1
@@ -37,7 +42,7 @@ def process_hud_alert(enabled, button_on, fingerprint, visual_alert, left_line,
                        right_line, left_lane_depart, right_lane_depart):
   hud_alert = 0
   if visual_alert == VisualAlert.steerRequired:
-    hud_alert = 4 if fingerprint in [CAR.GENESIS , CAR.GENESIS_G90, CAR.GENESIS_G80] else 3
+    hud_alert = 4 if fingerprint in [CAR.GENESIS] else 3
 
   # initialize to no line visible
   
@@ -58,9 +63,9 @@ def process_hud_alert(enabled, button_on, fingerprint, visual_alert, left_line,
   left_lane_warning = 0
   right_lane_warning = 0
   if left_lane_depart:
-    left_lane_warning = 1 if fingerprint in [CAR.GENESIS , CAR.GENESIS_G90, CAR.GENESIS_G80] else 2
+    left_lane_warning = 1 if fingerprint in [CAR.GENESIS] else 2
   if right_lane_depart:
-    right_lane_warning = 1 if fingerprint in [CAR.GENESIS , CAR.GENESIS_G90, CAR.GENESIS_G80] else 2
+    right_lane_warning = 1 if fingerprint in [CAR.GENESIS] else 2
 
   return hud_alert, lane_visible, left_lane_warning, right_lane_warning
 
@@ -92,47 +97,39 @@ class CarController():
     apply_accel, self.accel_steady = accel_hysteresis(apply_accel, self.accel_steady)
     apply_accel = clip(apply_accel * ACCEL_SCALE, ACCEL_MIN, ACCEL_MAX)
 
-    if CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (100 * 1. / 3.6):  # above 100km/h
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.48
-    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (90 * 1. / 3.6):  # btw 100km/h ~ 90km/h
+    lkas_active = enabled
+
+    # Disable steering while turning blinker on and speed below 60 kph
+    if CS.left_blinker_on or CS.right_blinker_on:
+      if self.car_fingerprint in [CAR.KONA, CAR.KONA_HEV, CAR.IONIQ_HEV]:
+        self.turning_signal_timer = 100  # Disable for 1.0 Seconds after blinker turned off
+      elif CS.left_blinker_flash or CS.right_blinker_flash:
+        self.turning_signal_timer = 100
+
+    if CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (100 * CV.KPH_TO_MS):  # above 100km/h
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.38
+    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (90 * CV.KPH_TO_MS):  # btw 100km/h ~ 90km/h
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.50
+    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (80 * CV.KPH_TO_MS):  # btw 90km/h ~ 80km/h
       new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.55
-    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (80 * 1. / 3.6):  # btw 90km/h ~ 80km/h
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.65
-    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (70 * 1. / 3.6):  # btw 80km/h ~ 70km/h
+    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (70 * CV.KPH_TO_MS):  # btw 80km/h ~ 70km/h
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.70
+    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (60 * CV.KPH_TO_MS):  # btw 70km/h ~ 60km/h
       new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.80
-    elif CS.left_blinker_on or CS.right_blinker_on or CS.left_blinker_flash or CS.right_blinker_flash or self.turning_signal_timer and CS.v_ego > (60 * 1. / 3.6):  # btw 70km/h ~ 60km/h
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX * 0.90
     else:
-      new_steer = actuators.steer * SteerLimitParams.STEER_MAX    
-    
-    ### Steering Torque
-    #new_steer = actuators.steer * SteerLimitParams.STEER_MAX
+      new_steer = actuators.steer * SteerLimitParams.STEER_MAX
+
+       ### Steering Torque
     apply_steer = apply_std_steer_torque_limits(new_steer, self.apply_steer_last, CS.steer_torque_driver, SteerLimitParams)
     self.steer_rate_limited = new_steer != apply_steer
 
-    ### LKAS button to temporarily disable steering
-    if not CS.lkas_error:
-      if CS.lkas_button_on != self.lkas_button_last:
-        self.lkas_button = not self.lkas_button
-      self.lkas_button_last = CS.lkas_button_on
-
-    # disable if steer angle reach 90 deg, otherwise mdps fault in some models
-    if self.car_fingerprint == CAR.GENESIS:
-      lkas_active = enabled and abs(CS.angle_steers) < 90. and self.lkas_button
-    else:
-      lkas_active = enabled and self.lkas_button
-
-    # Fix for sharp turns mdps fault and Genesis hard fault at low speed
-    if CS.v_ego < 13.7 and self.car_fingerprint == CAR.GENESIS and not CS.mdps_bus:
-      self.turning_signal_timer = 100
-    if ((CS.left_blinker_flash or CS.right_blinker_flash) and (CS.steer_override or abs(CS.angle_steers) > 10.) and CS.v_ego < 17.5): # Disable steering when blinker on and belwo ALC speed
-      self.turning_signal_timer = 100  # Disable for 1.0 Seconds after blinker turned off
-    if self.turning_signal_timer:
+    if self.turning_signal_timer and CS.v_ego < (60 * CV.KPH_TO_MS):
       lkas_active = 0
+    if self.turning_signal_timer:
       self.turning_signal_timer -= 1
     if not lkas_active:
       apply_steer = 0
-
+      
     steer_req = 1 if apply_steer else 0
 
     self.apply_accel_last = apply_accel
@@ -143,7 +140,7 @@ class CarController():
             left_line, right_line,left_lane_depart, right_lane_depart)
 
     clu11_speed = CS.clu11["CF_Clu_Vanz"]
-    enabled_speed = 34 if CS.is_set_speed_in_mph  else 55
+    enabled_speed = 38 if CS.is_set_speed_in_mph  else 60
     if clu11_speed > enabled_speed or not lkas_active:
       enabled_speed = clu11_speed
 
@@ -182,7 +179,7 @@ class CarController():
         self.last_lead_distance = CS.lead_distance
         self.resume_cnt = 0
       # when lead car starts moving, create 6 RES msgs
-      elif CS.lead_distance > self.last_lead_distance and (frame - self.last_resume_frame) > 5:
+      elif CS.lead_distance != self.last_lead_distance and (frame - self.last_resume_frame) > 5:
         can_sends.append(create_clu11(self.packer, CS.scc_bus, CS.clu11, Buttons.RES_ACCEL, clu11_speed, self.resume_cnt))
         self.resume_cnt += 1
         # interval after 6 msgs

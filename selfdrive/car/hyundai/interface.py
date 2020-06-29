@@ -66,8 +66,8 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.16], [0.01]]           
     elif candidate in [CAR.GENESIS_G90, CAR.GENESIS_G80]:
       ret.mass = 2200. + STD_CARGO_KG
-      ret.wheelbase = 3.15
-      ret.steerRatio = 12.069
+      ret.wheelbase = 3.01 #Default 3.15
+      ret.steerRatio = 16.5   #Default 12.069
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.16], [0.01]]
     elif candidate in [CAR.ELANTRA, CAR.ELANTRA_GT_I30]:

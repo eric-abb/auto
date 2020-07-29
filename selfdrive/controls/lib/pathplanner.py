@@ -175,11 +175,11 @@ class PathPlanner():
 
       if self.lane_change_direction == LaneChangeDirection.left:
         torque_applied = sm['carState'].steeringTorque > 0 and sm['carState'].steeringPressed
-        if CP.autoLcaEnabled and 1.6 > self.pre_auto_LCA_timer > 1.1 and not lca_left:
+        if CP.autoLcaEnabled and 0.6 > self.pre_auto_LCA_timer > 0.1 and not lca_left:
           torque_applied = True # Enable auto LCA only once after 1 sec 
       else:
         torque_applied = sm['carState'].steeringTorque < 0 and sm['carState'].steeringPressed
-        if CP.autoLcaEnabled and 1.6 > self.pre_auto_LCA_timer > 1.1 and not lca_right:
+        if CP.autoLcaEnabled and 0.6 > self.pre_auto_LCA_timer > 0.1 and not lca_right:
           torque_applied = True # Enable auto LCA only once after 1 sec 
 
       lane_change_prob = self.LP.l_lane_change_prob + self.LP.r_lane_change_prob

@@ -16,13 +16,13 @@ class kegman_conf():
     # only fetch Kp, Ki, Kf sR and sRC from interface.py if it's a PID controlled car
     if CP.lateralTuning.which() == 'pid':
       if self.conf['Kp'] == "-1":
-        self.conf['Kp'] = str(round(CP.lateralTuning.pid.kpV[0],3))
+       self.conf['Kp'] = str(round(CP.lateralTuning.pid.kpV[0],3))
         write_conf = True
       if self.conf['Ki'] == "-1":
-        self.conf['Ki'] = str(round(CP.lateralTuning.pid.kiV[0],3))
+       self.conf['Ki'] = str(round(CP.lateralTuning.pid.kiV[0],3))
         write_conf = True
       if self.conf['Kf'] == "-1":
-        self.conf['Kf'] = str('{:f}'.format(CP.lateralTuning.pid.kf))
+       self.conf['Kf'] = str('{:f}'.format(CP.lateralTuning.pid.kf))
         write_conf = True
     
     if self.conf['steerRatio'] == "-1":
@@ -154,11 +154,11 @@ class kegman_conf():
       self.config = {"cameraOffset":"0.06", "lastTrMode":"1", "battChargeMin":"70", "battChargeMax":"80", \
                      "wheelTouchSeconds":"70", "battPercOff":"30", "carVoltageMinEonShutdown":"11800", \
                      "brakeStoppingTarget":"0.25", "tuneGernby":"1", "threshold":"150", \
-                     "Kp":"0.25", "Ki":"0.05", "liveParams":"1", "leadDistance":"5", "deadzone":"0.0", \
+                     "Kp":"-1" "Ki":"-1" "liveParams":"1", "leadDistance":"5", "deadzone":"0.0", \
 		     "1barBP0":"-0.1", "1barBP1":"2.25", "2barBP0":"-0.1", "2barBP1":"2.5", "3barBP0":"0.0", \
 		     "3barBP1":"3.0", "1barMax":"2.1", "2barMax":"2.1", "3barMax":"2.1", \
 		     "1barHwy":"0.4", "2barHwy":"0.3", "3barHwy":"0.1", \
-		     "steerRatio":"-1", "steerRateCost":"-1", "slowOnCurves":"0", "Kf":"0.000050", \
+		     "steerRatio":"-1", "steerRateCost":"-1", "slowOnCurves":"0", "Kf":"-1", \
 		     "sR_boost":"0", "sR_BP0":"0", "sR_BP1":"0", "sR_time":"1", \
                      "deltaUp":"3", "deltaDown":"7", "steerMax":"255", \		     
                      "ALCnudgeLess":"1", "ALCminSpeed":"18", "ALCtimer":"1.0", "CrusieDelta":"8", "CruiseEnableMin":"40"}

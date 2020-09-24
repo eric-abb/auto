@@ -127,7 +127,7 @@ class kegman_conf():
         self.element_updated = True	
 
       if "steerMax" not in self.config:
-        self.config.update({"steerMax":"255"})
+        self.config.update({"steerMax":"350"})
         self.element_updated = True
 
       if "deltaUp" not in self.config:

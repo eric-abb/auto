@@ -67,7 +67,7 @@ class CarInterface(CarInterfaceBase):
       #ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.25], [0.05]]
       ret.lateralTuning.init('lqr')
       ret.lateralTuning.lqr.scale =2000.0
-      ret.lateralTuning.lqr.ki =0.005
+      ret.lateralTuning.lqr.ki =0.01 #0.005
       ret.lateralTuning.lqr.a = [0., 1., -0.22619643, 1.21822268]
       ret.lateralTuning.lqr.b = [-1.92006585e-04, 3.95603032e-05]	
       ret.lateralTuning.lqr.c = [1., 0.]
@@ -75,7 +75,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.lqr.l = [0.22, 0.318]
       ret.lateralTuning.lqr.dcGain = 0.003
       
-      ret.steerRatio = 12.3      
+      ret.steerRatio = 13.8     
       ret.steerActuatorDelay = 0.25
       ret.steerLimitTimer = 2.5
       
